@@ -17,7 +17,6 @@ import org.unidal.web.mvc.annotation.OutboundActionMeta;
 import org.unidal.web.mvc.annotation.PayloadMeta;
 
 import com.dianping.cat.Cat;
-import com.dianping.cat.consumer.core.EventStatisticsComputer;
 import com.dianping.cat.consumer.event.model.entity.EventName;
 import com.dianping.cat.consumer.event.model.entity.EventReport;
 import com.dianping.cat.consumer.event.model.entity.EventType;
@@ -26,13 +25,13 @@ import com.dianping.cat.helper.CatString;
 import com.dianping.cat.helper.TimeUtil;
 import com.dianping.cat.report.ReportPage;
 import com.dianping.cat.report.graph.GraphBuilder;
-import com.dianping.cat.report.model.ModelRequest;
-import com.dianping.cat.report.model.ModelResponse;
 import com.dianping.cat.report.page.PayloadNormalizer;
 import com.dianping.cat.report.page.PieChart;
 import com.dianping.cat.report.page.PieChart.Item;
 import com.dianping.cat.report.page.model.spi.ModelService;
 import com.dianping.cat.report.service.ReportService;
+import com.dianping.cat.service.ModelRequest;
+import com.dianping.cat.service.ModelResponse;
 import com.google.gson.Gson;
 
 public class Handler implements PageHandler<Context> {
@@ -58,13 +57,11 @@ public class Handler implements PageHandler<Context> {
 	@Inject
 	private PayloadNormalizer m_normalizePayload;
 
-	private EventStatisticsComputer m_computer = new EventStatisticsComputer();
-
 	private void buildEventNameGraph(String ip, String type, EventReport report, Model model) {
 		PieChart chart = new PieChart();
 		Collection<EventName> values = report.findOrCreateMachine(ip).findOrCreateType(type).getNames().values();
 		List<Item> items = new ArrayList<Item>();
-		
+
 		for (EventName name : values) {
 			Item item = new Item();
 			item.setNumber(name.getTotalCount()).setTitle(name.getId());
@@ -80,14 +77,14 @@ public class Handler implements PageHandler<Context> {
 			boolean isCurrent = payload.getPeriod().isCurrent();
 			String ip = payload.getIpAddress();
 			Machine machine = report.getMachines().get(ip);
-		
+
 			if (machine == null) {
 				return;
 			}
 			for (EventType eventType : machine.getTypes().values()) {
 				long totalCount = eventType.getTotalCount();
 				double tps = 0;
-			
+
 				if (isCurrent) {
 					double seconds = (System.currentTimeMillis() - payload.getCurrentDate()) / (double) 1000;
 					tps = totalCount / seconds;
@@ -99,7 +96,7 @@ public class Handler implements PageHandler<Context> {
 				for (EventName transName : eventType.getNames().values()) {
 					long totalNameCount = transName.getTotalCount();
 					double nameTps = 0;
-					
+
 					if (isCurrent) {
 						double seconds = (System.currentTimeMillis() - payload.getCurrentDate()) / (double) 1000;
 						nameTps = totalNameCount / seconds;
@@ -119,10 +116,8 @@ public class Handler implements PageHandler<Context> {
 		String type = payload.getType();
 		String name = payload.getName();
 		String ipAddress = payload.getIpAddress();
-		String date = String.valueOf(payload.getDate());
 		String ip = payload.getIpAddress();
-		ModelRequest request = new ModelRequest(domain, payload.getPeriod()) //
-		      .setProperty("date", date) //
+		ModelRequest request = new ModelRequest(domain, payload.getDate()) //
 		      .setProperty("type", payload.getType())//
 		      .setProperty("name", payload.getName())//
 		      .setProperty("ip", ipAddress);
@@ -138,12 +133,7 @@ public class Handler implements PageHandler<Context> {
 		EventType t = report.getMachines().get(ip).findType(type);
 
 		if (t != null) {
-			EventName n = t.findName(name);
-
-			if (n != null) {
-				n.accept(m_computer);
-			}
-			return n;
+			return t.findName(name);
 		}
 		return null;
 	}
@@ -151,9 +141,7 @@ public class Handler implements PageHandler<Context> {
 	private EventReport getReport(Payload payload) {
 		String domain = payload.getDomain();
 		String ipAddress = payload.getIpAddress();
-		String date = String.valueOf(payload.getDate());
-		ModelRequest request = new ModelRequest(domain, payload.getPeriod()) //
-		      .setProperty("date", date) //
+		ModelRequest request = new ModelRequest(domain, payload.getDate()) //
 		      .setProperty("type", payload.getType())//
 		      .setProperty("ip", ipAddress);
 
@@ -243,7 +231,6 @@ public class Handler implements PageHandler<Context> {
 			}
 
 			if (report != null) {
-				report.accept(m_computer);
 				model.setReport(report);
 			}
 

@@ -19,7 +19,7 @@ public class DisplayNames {
 	}
 
 	public DisplayNames display(String sorted, String type, String ip, TransactionReport report, String queryName) {
-		Map<String, TransactionType> types = report.getMachines().get(ip).getTypes();
+		Map<String, TransactionType> types = report.findOrCreateMachine(ip).getTypes();
 		TransactionName all = new TransactionName("TOTAL");
 		all.setTotalPercent(1);
 		if (types != null) {
@@ -82,6 +82,7 @@ public class DisplayNames {
 		old.setSum(old.getSum() + other.getSum());
 		old.setSum2(old.getSum2() + other.getSum2());
 		old.setLine95Value(0);
+		old.setLine99Value(0);
 		if (old.getTotalCount() > 0) {
 			old.setFailPercent(old.getFailCount() * 100.0 / old.getTotalCount());
 			old.setAvg(old.getSum() / old.getTotalCount());

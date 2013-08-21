@@ -4,6 +4,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
+import com.dianping.cat.report.baseline.BaselineCreatorTest;
 import com.dianping.cat.report.graph.ValueTranslaterTest;
 import com.dianping.cat.report.page.cross.CMDBTest;
 import com.dianping.cat.report.page.cross.CrossReportMergerTest;
@@ -16,8 +17,6 @@ import com.dianping.cat.report.page.metric.MetricReportMergerTest;
 import com.dianping.cat.report.page.metric.MetricReportParseTest;
 import com.dianping.cat.report.page.model.EventReportFilterTest;
 import com.dianping.cat.report.page.model.TransactionReportFilterTest;
-import com.dianping.cat.report.page.model.event.EventModelServiceTest;
-import com.dianping.cat.report.page.model.transaction.TransactionModelServiceTest;
 import com.dianping.cat.report.page.problem.ProblemGraphDataTest;
 import com.dianping.cat.report.page.problem.ProblemReportMergerTest;
 import com.dianping.cat.report.page.sql.SqlReportMergerTest;
@@ -48,12 +47,6 @@ import com.dianping.cat.system.notify.RenderTest;
 /*
  * TestHttp.class
  */
-
-/* .report.page.model.event */
-EventModelServiceTest.class,
-
-/* .report.page.model.transaction */
-TransactionModelServiceTest.class,
 
 /* .report.graph */
 ValueTranslaterTest.class,
@@ -104,6 +97,11 @@ DependencyReportMergerTest.class, GraphConfigManagerTest.class,
 
 /* CMDB */
 CMDBTest.class,
+
+/* BaseLine */
+BaselineCreatorTest.class,
+
+MetricReportParseTest.class,
 
 /* jsError */
 ParseTest.class})

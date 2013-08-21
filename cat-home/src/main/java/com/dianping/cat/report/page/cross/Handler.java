@@ -19,9 +19,6 @@ import com.dianping.cat.consumer.cross.model.entity.CrossReport;
 import com.dianping.cat.helper.CatString;
 import com.dianping.cat.helper.TimeUtil;
 import com.dianping.cat.report.ReportPage;
-import com.dianping.cat.report.model.ModelPeriod;
-import com.dianping.cat.report.model.ModelRequest;
-import com.dianping.cat.report.model.ModelResponse;
 import com.dianping.cat.report.page.PayloadNormalizer;
 import com.dianping.cat.report.page.cross.display.HostInfo;
 import com.dianping.cat.report.page.cross.display.MethodInfo;
@@ -29,6 +26,9 @@ import com.dianping.cat.report.page.cross.display.ProjectInfo;
 import com.dianping.cat.report.page.cross.display.TypeDetailInfo;
 import com.dianping.cat.report.page.model.spi.ModelService;
 import com.dianping.cat.report.service.ReportService;
+import com.dianping.cat.service.ModelPeriod;
+import com.dianping.cat.service.ModelRequest;
+import com.dianping.cat.service.ModelResponse;
 
 public class Handler implements PageHandler<Context> {
 	@Inject
@@ -69,10 +69,8 @@ public class Handler implements PageHandler<Context> {
 
 	private CrossReport getHourlyReport(Payload payload) {
 		String domain = payload.getDomain();
-		String date = String.valueOf(payload.getDate());
 		String ipAddress = payload.getIpAddress();
-		ModelRequest request = new ModelRequest(domain, payload.getPeriod()) //
-		      .setProperty("date", date) //
+		ModelRequest request = new ModelRequest(domain, payload.getDate()) //
 		      .setProperty("ip", ipAddress);
 
 		if (m_service.isEligable(request)) {
@@ -93,8 +91,7 @@ public class Handler implements PageHandler<Context> {
 	}
 
 	private CrossReport getHourlyReport(String domain, ModelPeriod period, String date, String ip) {
-		ModelRequest request = new ModelRequest(domain, period) //
-		      .setProperty("date", date) //
+		ModelRequest request = new ModelRequest(domain, Long.parseLong(date)) //
 		      .setProperty("ip", ip);
 
 		if (m_service.isEligable(request)) {

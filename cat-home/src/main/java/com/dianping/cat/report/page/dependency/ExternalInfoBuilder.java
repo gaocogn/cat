@@ -19,13 +19,14 @@ import com.dianping.cat.helper.TimeUtil;
 import com.dianping.cat.home.dal.report.Event;
 import com.dianping.cat.home.dependency.graph.entity.TopologyGraph;
 import com.dianping.cat.home.dependency.graph.entity.TopologyNode;
-import com.dianping.cat.report.model.ModelRequest;
-import com.dianping.cat.report.model.ModelResponse;
 import com.dianping.cat.report.page.dependency.graph.GraphConstrant;
 import com.dianping.cat.report.page.externalError.EventCollectManager;
 import com.dianping.cat.report.page.model.spi.ModelService;
 import com.dianping.cat.report.page.top.TopMetric;
 import com.dianping.cat.report.service.ReportService;
+import com.dianping.cat.service.ModelRequest;
+import com.dianping.cat.service.ModelResponse;
+import com.dianping.cat.system.config.ExceptionThresholdConfigManager;
 
 public class ExternalInfoBuilder {
 
@@ -40,6 +41,9 @@ public class ExternalInfoBuilder {
 	
 	@Inject
 	private ReportService m_reportService;
+	
+	@Inject
+	private ExceptionThresholdConfigManager m_configManager;
 
 	private SimpleDateFormat m_dateFormat = new SimpleDateFormat("yyyyMMddHH");
 	
@@ -149,7 +153,7 @@ public class ExternalInfoBuilder {
 		int minuteCount = payload.getMinuteCounts();
 		int minute = model.getMinute();
 		TopReport report = queryTopReport(payload);
-		TopMetric topMetric = new TopMetric(minuteCount, payload.getTopCounts());
+		TopMetric topMetric = new TopMetric(minuteCount, payload.getTopCounts(),m_configManager);
 		Date end = new Date(payload.getDate() + TimeUtil.ONE_MINUTE * minute);
 		Date start = new Date(end.getTime() - TimeUtil.ONE_MINUTE * minuteCount);
 
@@ -209,7 +213,7 @@ public class ExternalInfoBuilder {
 
 	private ProblemReport queryProblemReport(Payload payload, String domain) {
 		String date = String.valueOf(payload.getDate());
-		ModelRequest request = new ModelRequest(domain, payload.getPeriod()) //
+		ModelRequest request = new ModelRequest(domain, payload.getDate()) //
 		      .setProperty("date", date).setProperty("type", "view");
 		if (m_problemservice.isEligable(request)) {
 			ModelResponse<ProblemReport> response = m_problemservice.invoke(request);
@@ -223,7 +227,7 @@ public class ExternalInfoBuilder {
 	private TopReport queryTopReport(Payload payload) {
 		String domain = CatString.CAT;
 		String date = String.valueOf(payload.getDate());
-		ModelRequest request = new ModelRequest(domain, payload.getPeriod()) //
+		ModelRequest request = new ModelRequest(domain, payload.getDate()) //
 		      .setProperty("date", date);
 
 		if (m_topService.isEligable(request)) {

@@ -16,7 +16,6 @@ import org.unidal.web.mvc.annotation.OutboundActionMeta;
 import org.unidal.web.mvc.annotation.PayloadMeta;
 
 import com.dianping.cat.Cat;
-import com.dianping.cat.consumer.transaction.TransactionStatisticsComputer;
 import com.dianping.cat.consumer.transaction.model.entity.Machine;
 import com.dianping.cat.consumer.transaction.model.entity.TransactionName;
 import com.dianping.cat.consumer.transaction.model.entity.TransactionReport;
@@ -25,8 +24,6 @@ import com.dianping.cat.helper.CatString;
 import com.dianping.cat.helper.TimeUtil;
 import com.dianping.cat.report.ReportPage;
 import com.dianping.cat.report.graph.GraphBuilder;
-import com.dianping.cat.report.model.ModelRequest;
-import com.dianping.cat.report.model.ModelResponse;
 import com.dianping.cat.report.page.PayloadNormalizer;
 import com.dianping.cat.report.page.PieChart;
 import com.dianping.cat.report.page.PieChart.Item;
@@ -37,6 +34,8 @@ import com.dianping.cat.report.page.transaction.GraphPayload.DurationPayload;
 import com.dianping.cat.report.page.transaction.GraphPayload.FailurePayload;
 import com.dianping.cat.report.page.transaction.GraphPayload.HitPayload;
 import com.dianping.cat.report.service.ReportService;
+import com.dianping.cat.service.ModelRequest;
+import com.dianping.cat.service.ModelResponse;
 import com.google.gson.Gson;
 
 public class Handler implements PageHandler<Context> {
@@ -64,8 +63,6 @@ public class Handler implements PageHandler<Context> {
 
 	@Inject(type = ModelService.class, value = "transaction")
 	private ModelService<TransactionReport> m_service;
-
-	private TransactionStatisticsComputer m_computer = new TransactionStatisticsComputer();
 
 	private void buildTransactionNameGraph(List<TransactionNameModel> names, Model model) {
 		PieChart chart = new PieChart();
@@ -126,10 +123,8 @@ public class Handler implements PageHandler<Context> {
 
 	private TransactionReport getHourlyReport(Payload payload) {
 		String domain = payload.getDomain();
-		String date = String.valueOf(payload.getDate());
 		String ipAddress = payload.getIpAddress();
-		ModelRequest request = new ModelRequest(domain, payload.getPeriod()) //
-		      .setProperty("date", date) //
+		ModelRequest request = new ModelRequest(domain, payload.getDate())
 		      .setProperty("type", payload.getType())//
 		      .setProperty("ip", ipAddress);
 
@@ -163,9 +158,7 @@ public class Handler implements PageHandler<Context> {
 		String name = payload.getName();
 		String ip = payload.getIpAddress();
 		String ipAddress = payload.getIpAddress();
-		String date = String.valueOf(payload.getDate());
-		ModelRequest request = new ModelRequest(domain, payload.getPeriod()) //
-		      .setProperty("date", date) //
+		ModelRequest request = new ModelRequest(domain, payload.getDate()) //
 		      .setProperty("type", payload.getType()) //
 		      .setProperty("name", payload.getName())//
 		      .setProperty("ip", ipAddress);
@@ -176,14 +169,11 @@ public class Handler implements PageHandler<Context> {
 		}
 		ModelResponse<TransactionReport> response = m_service.invoke(request);
 		TransactionReport report = response.getModel();
-
+		
 		report = m_mergeManager.mergerAll(report, ipAddress, name);
 		TransactionType t = report.getMachines().get(ip).findType(type);
 		if (t != null) {
 			TransactionName n = t.findName(name);
-			if (n != null) {
-				n.accept(m_computer);
-			}
 			return n;
 		} else {
 			return null;
@@ -277,7 +267,6 @@ public class Handler implements PageHandler<Context> {
 			TransactionReport report = getHourlyReport(payload);
 
 			if (report != null) {
-				report.accept(m_computer);
 				model.setReport(report);
 
 				String type = payload.getType();

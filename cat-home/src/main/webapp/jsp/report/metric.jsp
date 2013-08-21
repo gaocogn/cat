@@ -35,7 +35,7 @@
 				<c:forEach var="nav" items="${model.navs}">
 					&nbsp;[ <a href="${model.baseUri}?date=${model.date}&domain=${model.domain}&step=${nav.hours}&product=${payload.product}&test=${payload.test}&${navUrlPrefix}">${nav.title}</a> ]&nbsp;
 				</c:forEach>
-				&nbsp;[ <a href="${model.baseUri}?${navUrlPrefix}">now</a> ]&nbsp;
+				&nbsp;[ <a href="${model.baseUri}?${navUrlPrefix}&product=${payload.product}">now</a> ]&nbsp;
 			</td>
 		</tr>
 	</table>
@@ -50,7 +50,7 @@
 	              <c:if test="${payload.product eq item.id }">
 		               <c:forEach var="test" items="${model.display.abtests}" varStatus="status">
 		               	   <c:if test="${test.value.id ne -1}">
-				              <li id="${test.value.id}"><a href="?date=${model.date}&domain=${model.domain}&product=${payload.product}&test=${test.key}">${test.value.name}-[${test.key}]</a></li>
+				              <li id="${test.key}"><a href="?date=${model.date}&domain=${model.domain}&product=${payload.product}&test=${test.key}">${test.value.name}-[${test.key}]</a></li>
 		               	   </c:if>
 		       		  </c:forEach>
 	              </c:if>
@@ -61,10 +61,11 @@
           </div><!--/.well -->
         </div><!--/span-->
         <div class="span10">
+        	<h3 class='text-red'>说明：图中纵轴数据为10分钟数据之和</h3>
         	<c:forEach var="item" items="${model.display.lineCharts}" varStatus="status">
        			<div style="float:left;">
        				<h5 class="text-center text-error">${item.title}</h5>
-       				<div  id="${item.title}" class="graph"></div>
+       				<div  id="${item.title}" class="metricGraph"></div>
        			</div>
 			</c:forEach>
         </div>

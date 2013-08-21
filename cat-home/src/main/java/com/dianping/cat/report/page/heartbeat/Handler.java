@@ -19,13 +19,13 @@ import com.dianping.cat.helper.CatString;
 import com.dianping.cat.helper.TimeUtil;
 import com.dianping.cat.report.ReportPage;
 import com.dianping.cat.report.graph.GraphBuilder;
-import com.dianping.cat.report.model.ModelPeriod;
-import com.dianping.cat.report.model.ModelRequest;
-import com.dianping.cat.report.model.ModelResponse;
 import com.dianping.cat.report.page.PayloadNormalizer;
 import com.dianping.cat.report.page.model.spi.ModelService;
 import com.dianping.cat.report.service.ReportService;
 import com.dianping.cat.report.view.StringSortHelper;
+import com.dianping.cat.service.ModelPeriod;
+import com.dianping.cat.service.ModelRequest;
+import com.dianping.cat.service.ModelResponse;
 
 public class Handler implements PageHandler<Context> {
 	@Inject
@@ -95,16 +95,15 @@ public class Handler implements PageHandler<Context> {
 		return ip;
 	}
 
-	private HeartbeatReport getReport(String domain, String ipAddress, long dateLong, ModelPeriod period) {
-		String date = String.valueOf(dateLong);
-		ModelRequest request = new ModelRequest(domain, period) //
-		      .setProperty("date", date).setProperty("ip", ipAddress);
+	private HeartbeatReport getReport(String domain, String ipAddress, long date, ModelPeriod period) {
+		ModelRequest request = new ModelRequest(domain, date) //
+		      .setProperty("ip", ipAddress);
 
 		if (m_service.isEligable(request)) {
 			ModelResponse<HeartbeatReport> response = m_service.invoke(request);
 			HeartbeatReport report = response.getModel();
 			if (period.isLast()) {
-				Set<String> domains = m_reportService.queryAllDomainNames(new Date(dateLong), new Date(dateLong
+				Set<String> domains = m_reportService.queryAllDomainNames(new Date(date), new Date(date
 				      + TimeUtil.ONE_HOUR), "heartbeat");
 				Set<String> domainNames = report.getDomainNames();
 

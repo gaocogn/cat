@@ -28,16 +28,16 @@ import org.unidal.lookup.annotation.Inject;
 
 import com.dianping.cat.Cat;
 import com.dianping.cat.CatConstants;
+import com.dianping.cat.ServerConfigManager;
 import com.dianping.cat.configuration.NetworkInterfaceManager;
-import com.dianping.cat.configuration.ServerConfigManager;
 import com.dianping.cat.message.Message;
 import com.dianping.cat.message.MessageProducer;
 import com.dianping.cat.message.Transaction;
 import com.dianping.cat.message.internal.MessageId;
-import com.dianping.cat.message.spi.MessagePathBuilder;
 import com.dianping.cat.message.spi.MessageTree;
+import com.dianping.cat.message.spi.core.MessagePathBuilder;
 import com.dianping.cat.message.spi.internal.DefaultMessageTree;
-import com.dianping.cat.status.ServerStateManager;
+import com.dianping.cat.statistic.ServerStatisticManager;
 
 public class LocalMessageBucketManager extends ContainerHolder implements MessageBucketManager, Initializable,
       LogEnabled {
@@ -53,7 +53,7 @@ public class LocalMessageBucketManager extends ContainerHolder implements Messag
 	private ServerConfigManager m_configManager;
 
 	@Inject
-	private ServerStateManager m_serverStateManager;
+	private ServerStatisticManager m_serverStateManager;
 
 	@Inject
 	private MessagePathBuilder m_pathBuilder;
@@ -109,7 +109,6 @@ public class LocalMessageBucketManager extends ContainerHolder implements Messag
 		}
 	}
 
-	@Override
 	public void close() throws IOException {
 		synchronized (m_buckets) {
 			for (LocalMessageBucket bucket : m_buckets.values()) {
@@ -375,8 +374,6 @@ public class LocalMessageBucketManager extends ContainerHolder implements Messag
 
 			if (delay < fiveMinute && delay > -fiveMinute) {
 				m_serverStateManager.addProcessDelay(delay);
-			} else {
-				m_logger.error("Error when compute the delay duration, " + delay);
 			}
 		}
 		if (m_total % (CatConstants.SUCCESS_COUNT * 1000) == 0) {
@@ -406,7 +403,7 @@ public class LocalMessageBucketManager extends ContainerHolder implements Messag
 		@Override
 		public void run() {
 			try {
-				while (true) { 
+				while (true) {
 					MessageItem item = m_messageQueue.poll(5, TimeUnit.MILLISECONDS);
 
 					if (item != null) {
@@ -581,8 +578,8 @@ public class LocalMessageBucketManager extends ContainerHolder implements Messag
 				try {
 					long current = System.currentTimeMillis() / 1000 / 60;
 					int min = (int) (current % (60));
-					
-					// make system is 0-10 min is not busy
+
+					// make system 0-10 min is not busy
 					if (min > 10) {
 						moveOldMessages();
 					}

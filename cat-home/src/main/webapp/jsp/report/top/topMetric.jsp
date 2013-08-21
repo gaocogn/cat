@@ -22,37 +22,46 @@
   <div class="tab-content">
     <div class="tab-pane  active" id="tab1">
       <c:forEach var="item" items="${model.topMetric.error.result}"  varStatus="itemStatus">
-	      <table width="20%" style="float:left" border=1>  
+	      <table width="12%" style="float:left" border=1>  
 	           <tr><th colspan="2" class="text-error" class="text-error">${item.key}</th></tr>
 	           <tr><th width="80%">系统</th>      <th>个</th></tr>
 	           <c:forEach var="detail" items="${item.value}" varStatus="status">
 	              <tr class="${status.index mod 2 != 0 ? 'odd' : 'even'}">
-	                 <td>
-	                 <a class="hreftip" href="/cat/r/p?domain=${detail.domain}&date=${date}" data-toggle="tooltip" data-placement="top" title="" data-original-title="${detail.errorInfo}">${detail.domain}</a>
-	                 <td style="text-align:right">${w:format(detail.value,'0')}</td>
+	                 <c:choose>
+						<c:when test="${detail.alert == 2}">
+							 <td style="background-color:red;color:white;"><a class="hreftip"  style="color:white;" href="/cat/r/p?domain=${detail.domain}&date=${date}" data-toggle="tooltip" data-placement="top" title="" data-original-title="${detail.errorInfo}">${w:shorten(detail.domain, 22)}</a></td>
+	                		 <td style="background-color:red;color:white;text-align:right">${w:format(detail.value,'0')}</td>
+						</c:when>
+						<c:when test="${detail.alert == 1}">
+							 <td style="background-color:#bfa22f;color:white;"><a class="hreftip" style="color:white;" href="/cat/r/p?domain=${detail.domain}&date=${date}" data-toggle="tooltip" data-placement="top" title="" data-original-title="${detail.errorInfo}">${w:shorten(detail.domain, 22)}</a></td>
+	                		 <td style="background-color:#bfa22f;color:white;text-align:right">${w:format(detail.value,'0')}</td>
+						</c:when>
+						<c:otherwise>
+							 <td><a class="hreftip" href="/cat/r/p?domain=${detail.domain}&date=${date}" data-toggle="tooltip" data-placement="top" title="" data-original-title="${detail.errorInfo}">${w:shorten(detail.domain, 22)}</a></td>
+	                		 <td style="text-align:right">${w:format(detail.value,'0')}</td>
+						</c:otherwise>
+					 </c:choose>
 	              </tr>
 	           </c:forEach>
 	      </table>
-	      <c:if test="${itemStatus.index mod 5 == 4 }"><p>&nbsp;</p></c:if>
       </c:forEach>
     </div>
     <div class="tab-pane" id="tab2">
       <c:forEach var="item" items="${model.topMetric.url.result}" varStatus="itemStatus">
-      <table width="20%" style="float:left" border=1>  
+      <table width="12%" style="float:left" border=1>  
             <tr><th colspan="2" class="text-error">${item.key}</th></tr>
             <tr><th width="80%">系统</th>      <th>ms</th></tr>
             <c:forEach var="detail" items="${item.value}" varStatus="status">
-               <tr class="${status.index mod 2 != 0 ? 'odd' : 'even'}">
+               <tr class="${status.index mod 2 != 0 ? 'odd' : 'even'}"> 
                   <td><a href="/cat/r/t?domain=${detail.domain}&date=${date}" target="_blank">${detail.domain}</a></td><td>${w:format(detail.value,'0.0')}</td>
                </tr>
             </c:forEach>
       </table>
-	      <c:if test="${itemStatus.index mod 5 == 4 }"><p>&nbsp;</p></c:if>
    </c:forEach>
     </div>
     <div class="tab-pane" id="tab3">
       <c:forEach var="item" items="${model.topMetric.service.result}" varStatus="itemStatus">
-      <table width="20%" style="float:left" border=1>  
+      <table width="12%" style="float:left" border=1>  
             <tr><th colspan="2" class="text-error">${item.key}</th></tr>
             <tr><th width="80%">系统</th>      <th>ms</th></tr>
             <c:forEach var="detail" items="${item.value}" varStatus="status">
@@ -61,12 +70,11 @@
                </tr>
             </c:forEach>
       </table>
-	  <c:if test="${itemStatus.index mod 5 == 4 }"><p>&nbsp;</p></c:if>
    </c:forEach>
     </div>
     <div class="tab-pane" id="tab4">
       <c:forEach var="item" items="${model.topMetric.sql.result}" varStatus="itemStatus">
-      <table width="20%" style="float:left" border=1>  
+      <table width="12%" style="float:left" border=1>  
             <tr><th colspan="2" class="text-error">${item.key}</th></tr>
             <tr><th width="80%">系统</th>      <th>ms</th></tr>
             <c:forEach var="detail" items="${item.value}" varStatus="status">
@@ -75,12 +83,11 @@
                </tr>
             </c:forEach>
       </table>
-      <c:if test="${itemStatus.index mod 5 == 4 }"><p>&nbsp;</p></c:if>
    </c:forEach>
     </div>
     <div class="tab-pane" id="tab5">
       <c:forEach var="item" items="${model.topMetric.call.result}" varStatus="itemStatus">
-      <table width="20%" style="float:left" border=1>  
+      <table width="12%" style="float:left" border=1>  
             <tr><th colspan="2" class="text-error">${item.key}</th></tr>
             <tr><th width="80%">系统</th>      <th>ms</th></tr>
             <c:forEach var="detail" items="${item.value}" varStatus="status">
@@ -89,12 +96,11 @@
                </tr>
             </c:forEach>
       </table>
-	  <c:if test="${itemStatus.index mod 5 == 4 }"><p>&nbsp;</p></c:if>
    </c:forEach>
     </div>
     <div class="tab-pane" id="tab6">
       <c:forEach var="item" items="${model.topMetric.cache.result}" varStatus="itemStatus">
-      <table width="20%" style="float:left" border=1>  
+      <table width="12%" style="float:left" border=1>  
             <tr><th colspan="2" class="text-error">${item.key}</th></tr>
             <tr><th width="80%">系统</th>      <th>ms</th></tr>
             <c:forEach var="detail" items="${item.value}" varStatus="status">
@@ -103,7 +109,6 @@
                </tr>
             </c:forEach>
       </table>
-      <c:if test="${itemStatus.index mod 5 == 4 }"><p>&nbsp;</p></c:if>
    </c:forEach>
     </div>
   </div></div>
